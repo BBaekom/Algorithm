@@ -4,7 +4,7 @@ using namespace std;
 
 void shout()
 {
-    cout << "bbbbbbbbb!" << endl;
+    cout << "aaaaaaaaa!" << endl;
 }
 
 int main()
