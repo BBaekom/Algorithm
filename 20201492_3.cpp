@@ -14,5 +14,7 @@ int main(void)
     {
         cout << rand() % 10000 << " ";
     }
+    cout << endl;
+    cout << m << endl;
     return 0;
 }
