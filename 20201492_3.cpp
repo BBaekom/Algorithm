@@ -20,6 +20,7 @@ public:
     LinkedList *makeRandNum(int); // n개의 난수 연결리스트를 만드는 함수
     void addNode(int);
     void deleteAllNode();
+    void connectptrArray(LinkedList **, int);
     Node *getHead()
     {
         return head;
@@ -30,9 +31,10 @@ public:
     }
 };
 
-void radixSort(LinkedList *, int); // 기수정렬알고리즘
+void radixSort(LinkedList *); // 기수정렬알고리즘
 int getLargestNum(LinkedList *);   // 자릿수를 알아내는 알고리즘
 void sortElement(LinkedList **, LinkedList **, LinkedList *, int);
+void initialization(LinkedList **, LinkedList **, LinkedList *);
 
 int main(void)
 {
@@ -45,9 +47,8 @@ int main(void)
 
     randList->makeRandNum(n); // n개의 난수를 연결리스트로 만들어 randN에 리턴
     randList->printNums();    // n개의 난수 먼저 출력해주기
-    radixSort(randList, n);
+    radixSort(randList);
     randList->printNums();
-    // 마지막에 동적할당 해제해주기
     return 0;
 }
 
@@ -84,21 +85,60 @@ LinkedList *LinkedList::makeRandNum(int n)
     return this;
 }
 
-void radixSort(LinkedList *randN, int n)
+void radixSort(LinkedList *randN)
 { // n이 안쓰이면 삭제
-    LinkedList *headptr[10] = {nullptr};
-    LinkedList *tailptr[10] = {nullptr};
+    LinkedList *headptrArray[10] = {nullptr};
+    LinkedList *tailptrArray[10] = {nullptr};
     int digit = getLargestNum(randN);
     for (int i = 1; i <= digit; i++)
     {
-        sortElement(headptr, tailptr, randN, i);
+        sortElement(headptrArray, tailptrArray, randN, i);
+        initialization(headptrArray, tailptrArray, randN);
     }
     return;
 }
 
-void sortElement(LinkedList **headptr, LinkedList **tailptr, LinkedList *randN, int k)
-{
+void sortElement(LinkedList **headptrArray, LinkedList **tailptrArray, LinkedList *randN, int k) {
+    Node *start = randN->getHead();
+    while (start != nullptr) {
+        int divisor = 10;
+        int dividend = 0, rest = 0;
+        int data = start->data;
+        for (int i = 0;  i < k; i++) { 
+            rest = data % divisor; 
+            if (i == k-1) { 
+                headptrArray[rest]->addNode(start->data);
+                tailptrArray[rest]->connectptrArray(headptrArray, rest);
+            } else {
+                data = data / divisor; 
+            }
+        }
+        start = start->next;
+    }
 }
+
+void LinkedList::connectptrArray(LinkedList ** headptrArray, int rest) {
+    this->head = headptrArray[rest]->tail;
+}
+
+void initialization(LinkedList ** headptrArray, LinkedList ** tailptrArray, LinkedList * randN) {
+    Node * start = randN->getHead();
+    for (int i = 0; i < 9; i++) {
+        while (start != nullptr) {
+            Node * ptrStart = headptrArray[i]->getHead();
+            while (ptrStart != nullptr) {
+                start->data = ptrStart->data;
+                start = start->next;
+                ptrStart = ptrStart->next;
+            }
+        }
+    }
+    for (int i = 0; i < 9; i++) {
+        headptrArray[i]->deleteAllNode();
+        tailptrArray[i]->connectptrArray(headptrArray, i);
+    }
+}
+
 
 int getLargestNum(LinkedList *numbers)
 {
@@ -127,6 +167,7 @@ void LinkedList::addNode(int data)
 {
     Node *newNode = new Node;
     newNode->data = data;
+    newNode->next = nullptr;
     if (this->head == nullptr)
     {
         this->head = newNode;
@@ -141,13 +182,13 @@ void LinkedList::addNode(int data)
 
 void LinkedList::deleteAllNode()
 {
-    Node *start = this->getHead();
+    Node *start = this->head;
     while (start != nullptr)
     {
         Node *deleteNode = start;
         start = start->next;
         delete deleteNode;
     }
-    head = nullptr;
-    tail = nullptr;
+    this->head = nullptr;
+    this->tail = nullptr;
 }
