@@ -1,150 +1,211 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
-#include <cmath>
+
 using namespace std;
 
-struct Node
+class Node // 노드
 {
-    int data;
-    Node *next;
-};
 
-class LinkedList // ???????? ???????? ??????? ???결리??????
-{
+private:
+    int data;
+    Node *link;
+
 public:
-    Node *head;
-    Node *tail;
-    LinkedList()
+    Node(int data)
     {
-        head = nullptr;
-        tail = nullptr;
+        this->data = data;
+        this->link = nullptr;
     }
 
-    void insert(int data)
+    void addNode(int data)
     {
-        Node *newNode = new Node;
-        newNode->data = data;
-        newNode->next = nullptr;
+        this->link = new Node(data);
+    }
 
-        if (head == nullptr)
+    Node *getNext()
+    {
+        return link;
+    }
+
+    int getData()
+    {
+        return data;
+    }
+
+    void setNext(Node *nextNode)
+    {
+        this->link = nextNode;
+    }
+};
+
+Node *stepOfRadixSort(Node *cursor, int divisor)
+{
+    Node *head[10] = {}; // 3)헤드를 저장하는 포인터 배열
+    Node *tail[10] = {}; // 4)테일을 저장하는 포인터 배열
+    Node *temp = nullptr;
+    Node *newHead;
+
+    Node *firstHead = cursor;
+
+    while (cursor != nullptr) // 2)자릿수에 해당하는 연결리스트 동적 메모리 할당
+    {
+
+        int radix = cursor->getData() / divisor % 10;
+
+        if (head[radix] == nullptr)
         {
-            head = newNode;
-            tail = newNode;
+            head[radix] = new Node(cursor->getData()); // 2)헤드 연결
+            tail[radix] = head[radix];                 // 2)테일 연결
         }
         else
         {
-            tail->next = newNode;
-            tail = newNode;
+            tail[radix]->addNode(cursor->getData());
+            tail[radix] = tail[radix]->getNext();
+        }
+        cursor = cursor->getNext();
+    }
+
+    for (int i = 0; i < 10; i++) // 정렬된 연결리스들 연결
+    {
+        if (head[i] == nullptr)
+        {
+            continue;
+        }
+        else
+        {
+            if (temp != nullptr)
+            {
+                temp->setNext(head[i]);
+                temp = tail[i];
+            }
+            else
+            {
+                temp = tail[i];
+            }
         }
     }
 
-    void display()
+    for (int i = 0; i < 10; i++) // 새로운 연결 리스트의 head
     {
-        Node *current = head;
-        while (current != nullptr)
+        if (head[i] != nullptr)
         {
-            cout << current->data << " ";
-            current = current->next;
+            newHead = head[i];
+            break;
         }
-        cout << endl;
     }
-};
+
+    while (firstHead != nullptr) // 동적 메모리 할당 해제
+    {
+        Node *remover = firstHead;
+        firstHead = firstHead->getNext();
+        delete remover;
+    }
+
+    return newHead;
+}
+
+int maxRadixCount(Node *cursor)
+{
+    int max = 1;
+    int data;
+    int temp;
+
+    while (cursor != nullptr)
+    {
+        data = cursor->getData();
+        if (data / 10 == 0)
+        {
+            cursor = cursor->getNext();
+        }
+        else
+        {
+            temp = 1;
+            while (data / 10 != 0)
+            {
+                data = data / 10;
+                temp++;
+            }
+            if (temp > max)
+            {
+                max = temp;
+            }
+            cursor = cursor->getNext();
+        }
+    }
+    return max;
+}
+
+Node *radixSort(Node *head)
+{
+    int maxRadix;
+    int digit = 1;
+    Node *newHead = head;
+
+    maxRadix = maxRadixCount(head);
+
+    for (int i = 0; i < maxRadix; i++)
+    {
+        newHead = stepOfRadixSort(newHead, digit);
+        digit = digit * 10;
+    }
+    return newHead;
+}
 
 int main()
 {
     srand((unsigned int)time(NULL));
-    int n, m;
-    cout << "n개의 ???????? ???????????????:";
+    int n;
+    int m;
+    int j = 0;
+
+    cout << "n: ";
     cin >> n;
-    cout << "?????? ?????? m:";
+
+    cout << "m: ";
     cin >> m;
-    for (int i = 0; i < m; i++)
+
+    while (j < m)
     {
-        LinkedList *linkedList = new LinkedList;       // n개의 ???????? ??????????? ?????? ??????메모?? ????????? ?????? ???결리??????
-        LinkedList **digitList = new LinkedList *[10]; // 0~9까??? ???릿수 ???결리?????? ?????? ??????????? ??????
-        LinkedList **headList = new LinkedList *[10];  // ???????? ???????????? ????? 10 ????????? 배열
-        LinkedList **tailList = new LinkedList *[10];  // ???????? ???????????? ????? 10 ????????? 배열
+        int i = 1;
+        Node *head = new Node(rand() % 10000); // 1)동적 메모리 할당을 통한 연결리스트 생성
+        Node *cursor = head;
+        Node *radixSortCompleted;
 
-        for (int i = 0; i < 10; i++)
+        while (i < n) // 1)동적 메모리 할당을 통한 연결리스트 생성
         {
-            digitList[i] = new LinkedList;
-            headList[i] = nullptr;
+            cursor->addNode(rand() % 10000);
+            cursor = cursor->getNext();
+            i++;
         }
 
-        for (int i = 0; i < n; i++)
+        cursor = head; // 연결리스트 출력
+        cout << "정렬 전: ";
+        while (cursor != nullptr)
         {
-            linkedList->insert(rand() % 10000); // n개의 ?????? ?????? ??????
+            cout << cursor->getData() << " ";
+            cursor = cursor->getNext();
         }
-        cout << "??????????? ??????:";
-        linkedList->display();
-
-        for (int count = 0; count < 4; count++)
-        {
-            Node *current = linkedList->head;
-
-            for (int i = 0; i < 10; i++)
-            {
-                digitList[i]->head = nullptr;
-                headList[i] = nullptr;
-                tailList[i] = nullptr;
-            }
-
-            for (int k = 0; k < n; k++)
-            {
-                int sortNum;
-                if (count == 0)
-                {
-                    sortNum = current->data % 10;
-                }
-                else
-                {
-                    sortNum = current->data / (int)pow(10, count) % 10;
-                }
-                digitList[sortNum]->insert(current->data);
-
-                if (headList[sortNum] == nullptr)
-                {
-                    headList[sortNum] = digitList[sortNum];
-                }
-                tailList[sortNum] = digitList[sortNum];
-
-                current = current->next;
-            }
-
-            linkedList->head = nullptr;
-            linkedList->tail = nullptr;
-
-            for (int i = 0; i < 10; i++)
-            {
-                if (headList[i] != nullptr)
-                {
-                    if (linkedList->head == nullptr)
-                    {
-                        linkedList->head = headList[i]->head;
-                        linkedList->tail = tailList[i]->tail;
-                    }
-                    else
-                    {
-                        linkedList->tail->next = headList[i]->head;
-                        linkedList->tail = tailList[i]->tail;
-                    }
-                }
-            }
-        }
-        cout << "기수?????? ???:";
-        linkedList->display();
         cout << endl;
 
-        // ??????????? ????????? 메모?? ??????
-        for (int i = 0; i < 10; i++)
+        radixSortCompleted = radixSort(head);
+
+        cursor = radixSortCompleted; // 연결리스트 출력
+        cout << "정렬 후: ";
+        while (cursor != nullptr)
         {
-            delete digitList[i];
+            cout << cursor->getData() << " ";
+            cursor = cursor->getNext();
         }
-        delete[] digitList;
-        delete[] headList;
-        delete[] linkedList;
-        delete[] tailList;
+        cout << endl;
+
+        cursor = radixSortCompleted; // 동적 메모리 할당 해제
+        while (cursor != nullptr)
+        {
+            Node *temp = cursor;
+            cursor = cursor->getNext();
+            delete temp;
+        }
+        j++;
     }
-    return 0;
 }
