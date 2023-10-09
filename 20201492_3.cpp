@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <cmath>
 using namespace std;
 
 struct Node
@@ -16,11 +17,11 @@ private:
     Node *tail = nullptr;
 
 public:
-    void printNums();             // 숫자들을 출력해주는 함수
-    LinkedList *makeRandNum(int); // n개의 난수 연결리스트를 만드는 함수
+    void printNums();      // 숫자들을 출력해주는 함수
+    void makeRandNum(int); // n개의 난수 연결리스트를 만드는 함수
     void addNode(int);
     void deleteAllNode();
-    void connectptrArray(LinkedList **, int);
+    // void connectptrArray(LinkedList **, int);
     Node *getHead()
     {
         return head;
@@ -31,10 +32,10 @@ public:
     }
 };
 
-void radixSort(LinkedList *); // 기수정렬알고리즘
+void radixSort(LinkedList *, int); // 기수정렬알고리즘
 int getLargestNum(LinkedList *);   // 자릿수를 알아내는 알고리즘
-void sortElement(LinkedList **, LinkedList **, LinkedList *, int);
-void initialization(LinkedList **, LinkedList **, LinkedList *);
+// void sortElement(LinkedList **, LinkedList **, LinkedList *, int);
+// void initialization(LinkedList **, LinkedList **, LinkedList *, int);
 
 int main(void)
 {
@@ -47,7 +48,7 @@ int main(void)
 
     randList->makeRandNum(n); // n개의 난수를 연결리스트로 만들어 randN에 리턴
     randList->printNums();    // n개의 난수 먼저 출력해주기
-    radixSort(randList);
+    radixSort(randList, n);
     randList->printNums();
     return 0;
 }
@@ -64,7 +65,7 @@ void LinkedList::printNums()
     return;
 }
 
-LinkedList *LinkedList::makeRandNum(int n)
+void LinkedList::makeRandNum(int n)
 {
     srand((unsigned int)time(NULL));
     for (int i = 0; i < n; i++)
@@ -82,63 +83,30 @@ LinkedList *LinkedList::makeRandNum(int n)
             this->tail = newNode;
         }
     }
-    return this;
-}
-
-void radixSort(LinkedList *randN)
-{ // n이 안쓰이면 삭제
-    LinkedList *headptrArray[10] = {nullptr};
-    LinkedList *tailptrArray[10] = {nullptr};
-    int digit = getLargestNum(randN);
-    for (int i = 1; i <= digit; i++)
-    {
-        sortElement(headptrArray, tailptrArray, randN, i);
-        initialization(headptrArray, tailptrArray, randN);
-    }
     return;
 }
 
-void sortElement(LinkedList **headptrArray, LinkedList **tailptrArray, LinkedList *randN, int k) {
-    Node *start = randN->getHead();
-    while (start != nullptr) {
-        int divisor = 10;
-        int dividend = 0, rest = 0;
-        int data = start->data;
-        for (int i = 0;  i < k; i++) { 
-            rest = data % divisor; 
-            if (i == k-1) { 
-                headptrArray[rest]->addNode(start->data);
-                tailptrArray[rest]->connectptrArray(headptrArray, rest);
-            } else {
-                data = data / divisor; 
-            }
-        }
-        start = start->next;
+void radixSort(LinkedList *randN, int n)
+{ // n이 안쓰이면 삭제
+    int digit = getLargestNum(randN);
+    LinkedList **headptr = new LinkedList *[10];
+    LinkedList **tailptr = new LinkedList *[10];
+    for (int i = 0; i < 10; i++)
+    {
+        headptr[i] = new LinkedList;
+        tailptr[i] = new LinkedList;
     }
-}
-
-void LinkedList::connectptrArray(LinkedList ** headptrArray, int rest) {
-    this->head = headptrArray[rest]->tail;
-}
-
-void initialization(LinkedList ** headptrArray, LinkedList ** tailptrArray, LinkedList * randN) {
-    Node * start = randN->getHead();
-    for (int i = 0; i < 9; i++) {
-        while (start != nullptr) {
-            Node * ptrStart = headptrArray[i]->getHead();
-            while (ptrStart != nullptr) {
-                start->data = ptrStart->data;
-                start = start->next;
-                ptrStart = ptrStart->next;
-            }
+    for (int i = 0; i < digit; i++)
+    {
+        Node *start = randN->getHead();
+        while (start != nullptr)
+        {
+            int rest = (start->data / (int)pow(10, i)) % 10;
+            headptr[rest]->addNode(start->data); // 잘 붙었어요^^
+            start = start->next;
         }
     }
-    for (int i = 0; i < 9; i++) {
-        headptrArray[i]->deleteAllNode();
-        tailptrArray[i]->connectptrArray(headptrArray, i);
-    }
 }
-
 
 int getLargestNum(LinkedList *numbers)
 {
