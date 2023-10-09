@@ -39,10 +39,16 @@ int main(void) {
         for (int j = 0; j < n; j++) {
             randList->addNode(rand() % 10000); // n개의 난수를 노드로 가지는 randList 동적할당으로 생성
         }
+        cout << "Number of Execution Times : " ;
+        cout << i + 1 << endl;
+        cout << endl;
+
         cout << "Before Sorting: ";
         randList->printNums();          // n개의 난수 먼저 출력해주기
         cout << endl;
+
         radixSort(randList);            // 기수정렬 실행
+        
         cout << "After Sorting: ";
         randList->printNums();          // 기수정렬 후의 결과 출력
         randList->deleteAllNode();      // 동적할당 해제
