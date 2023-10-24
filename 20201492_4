@@ -1,0 +1,25 @@
+#include <iostream>
+using namespace std;
+
+void select(int [], int, int, int);
+void partition(int [], int, int);
+void linearSelet(int [], int, int, int);
+void heapSort();
+
+int main(void) {
+    int A[10] = {1, 32, 19, 66, 91, 73, 120, 530, 17, 470};
+
+}
+
+// void select(int[] randArr, int first, int last, int i_Small) {
+//     int partitionNum;
+//     int k;
+//     if (first == last) { return randArr[first]; }
+//     partitionNum = partition(randArr, first, last);
+//     k = partitionNum - first + 1;
+//     if (i_Smallest < k){}
+// }
+
+void partition(int[] randArr, int first, int last) {
+
+}
