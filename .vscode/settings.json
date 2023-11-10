@@ -2,6 +2,11 @@
     "files.associations": {
         "ostream": "cpp",
         "iostream": "cpp",
-        "20201492_4": "cpp"
+        "20201492_4": "cpp",
+        "utility": "cpp",
+        "algorithm": "cpp",
+        "compare": "cpp",
+        "tuple": "cpp",
+        "xstring": "cpp"
     }
 }
